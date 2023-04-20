@@ -158,7 +158,9 @@ public class OssConfigurationStore {
         public String toString() {
             return "ConfigStorage:\n" +
                         getConfigurations().entrySet().stream()
-                            .map(entry -> entry.getKey() + " => " + entry.getValue())
+                            .map(entry -> entry.getKey() + " => " +
+                                    entry.getValue().getType() + " " +
+                                    entry.getValue().getEndPoint())
                             .collect(Collectors.joining("\n"));
         }
     }

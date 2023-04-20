@@ -1,6 +1,7 @@
 package cn.anger.ossservice.services;
 
 import cn.anger.ossservice.services.aws.AwsService;
+import cn.anger.ossservice.services.config.OssConfigurationStore;
 import cn.anger.ossservice.services.cos.COSService;
 import cn.anger.ossservice.services.model.OssConfiguration;
 
@@ -19,6 +20,10 @@ public class OssFactory {
             case COS -> new COSService(configuration);
             default -> null;
         };
+    }
+
+    public static Oss getInstance() {
+        return getInstance(OssConfigurationStore.defaultConfiguration());
     }
 
 }

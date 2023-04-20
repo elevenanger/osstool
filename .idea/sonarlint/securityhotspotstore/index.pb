@@ -1,6 +1,4 @@
 
-u
-Eossservice/src/main/java/cn/anger/ossservice/services/OssFactory.java,6/d/6dd8693841c3a4ab2dfe6c6444d21a3b2acfab57
 É
 Sossservice/src/main/java/cn/anger/ossservice/services/model/BatchDeleteRequest.java,b/2/b2c4f0d01e61e77a3662de49ed5ae2034e700666
 ç
@@ -13,8 +11,6 @@ Gossservice/src/main/java/cn/anger/ossservice/services/model/Bucket.java,2/6/26
 Lossservice/src/main/java/cn/anger/ossservice/services/model/CliResponse.java,f/6/f63918cb91b6e1aa59c23e4bc04bae9f093d10e4
 {
 Kossservice/src/main/java/cn/anger/ossservice/services/model/CliRequest.java,2/b/2be786d5d09444f46d3450dd420dd4c74c0a8393
-á
-Wossservice/src/main/java/cn/anger/ossservice/services/config/OssConfigurationStore.java,9/4/94bb99e6ffa7f832b820ff81c05daf23a9ad15fd
 E
 ossservice/.gitignore,3/d/3d1e922d487ddf0f094d466bf0a186bc111ee0f2
 Ö
@@ -23,23 +19,15 @@ Uossservice/src/main/java/cn/anger/ossservice/services/config/PresetConfiguratio
 Lossservice/src/main/java/cn/anger/ossservice/exception/OssBaseException.java,8/6/867a1cc48807addefe87a0c55096321453782abe
 å
 \ossservice/src/main/java/cn/anger/ossservice/exception/UnsupportedOssOperationException.java,d/5/d5bf934765f87c6706a340f9a5dd87588e9f5a80
-q
-Aossservice/src/main/java/cn/anger/ossservice/services/Client.java,a/1/a1cae34befac8e3207f3d8c68b81c8d4c8dedf4f
-Å
-Qossservice/src/main/java/cn/anger/ossservice/services/model/OssConfiguration.java,9/f/9fd0dc79c1412ef5ddfa1375f5d0470541773e24
 [
 +ossservice/src/main/java/cn/anger/Main.java,a/f/af87e4910a3f779e0ca9951e54066e5be72da146
 B
 ossservice/pom.xml,3/b/3bec644aba2955dfe6445efefec23d406dd5d0c4
 ã
 [ossservice/src/test/java/cn/anger/ossservice/services/config/OssConfigurationStoreTest.java,0/0/008ec5acc73f73c3a6191073481018cb0eb3c92c
-y
-Iossservice/src/main/java/cn/anger/ossservice/services/aws/AwsService.java,f/b/fb773b9b99dfcab3c9f9dbf94aa09170f531d398
 é
 ^ossservice/src/main/java/cn/anger/ossservice/services/model/transform/RequestTransformers.java,e/3/e3ea367954206661cdd8382e03083df2e1da46d4
 è
 _ossservice/src/main/java/cn/anger/ossservice/services/model/transform/ResponseTransformers.java,4/7/47baebb1269c723d2f914022c3cc34678d5be7fe
-Ñ
-Tossservice/src/main/java/cn/anger/ossservice/services/model/ListBucketsResponse.java,1/e/1edab0b1c2b52121c9020fb438dcca68f0dd9176
 Ç
 Rossservice/src/main/java/cn/anger/ossservice/services/model/GetObjectResponse.java,7/6/76c7ecdf0f29dddd851e2d7ade2cfa6b542a845f
