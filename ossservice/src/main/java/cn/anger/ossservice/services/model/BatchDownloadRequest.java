@@ -8,6 +8,7 @@ public class BatchDownloadRequest extends CliRequest {
     private String bucket;
     private String prefix;
     private String downloadPath;
+    private String rule;
 
     public BatchDownloadRequest(String bucket, String downloadPath) {
         this.bucket = bucket;
@@ -18,6 +19,13 @@ public class BatchDownloadRequest extends CliRequest {
         this.bucket = bucket;
         this.prefix = prefix;
         this.downloadPath = downloadPath;
+    }
+
+    public BatchDownloadRequest(String bucket, String prefix, String downloadPath, String rule) {
+        this.bucket = bucket;
+        this.prefix = prefix;
+        this.downloadPath = downloadPath;
+        this.rule = rule;
     }
 
     public String getBucket() {
@@ -42,5 +50,13 @@ public class BatchDownloadRequest extends CliRequest {
 
     public void setDownloadPath(String downloadPath) {
         this.downloadPath = downloadPath;
+    }
+
+    public String getRule() {
+        return rule;
+    }
+
+    public void setRule(String rule) {
+        this.rule = rule;
     }
 }

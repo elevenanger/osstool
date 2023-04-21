@@ -3,161 +3,225 @@ package cn.anger.cli;
 import cn.anger.ossservice.services.Oss;
 import cn.anger.ossservice.services.OssFactory;
 import cn.anger.ossservice.services.config.OssConfigurationStore;
+import cn.anger.ossservice.services.model.ListAllObjectRequest;
 import com.amazonaws.util.StringUtils;
 import picocli.CommandLine;
-import picocli.CommandLine.*;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 import java.io.File;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static cn.anger.cli.OssCli.oss;
+import static com.amazonaws.util.StringUtils.*;
 
 /**
  * @author Anger
  * created on 2023/4/20
  * oss 命令行工具客户端
  */
-// todo 未完成
 @Command(
         name = "osscli",
         mixinStandardHelpOptions = true,
         version = "osscli 1.0",
         description = "对象存储命令行工具",
-        subcommands = {ConfigCommands.class,
-                        BucketCommands.class,
-                        PutCommands.class})
-public class OssCli implements Runnable {
+        subcommands = {
+                ListCommand.class,
+                DeleteCommands.class,
+                PutCommand.class,
+                GetCommand.class,
+                BatchCommands.class
+        })
+public class OssCli {
 
-    public static final AtomicReference<Oss> oss = new AtomicReference<>(OssFactory.getInstance());
+    static final AtomicReference<Oss> oss = new AtomicReference<>();
 
-    @Option(names = "init-from")
-    String configId;
-
-    @Override
-    public void run() {
-        if (!StringUtils.isNullOrEmpty(configId))
-            oss.set(OssFactory.getInstance(OssConfigurationStore.getOne(configId)));
-    }
-
-    @ArgGroup(exclusive = false)
-    ObjectDeleteOperation objectDeleteOperation;
-
-    static class ObjectDeleteOperation {
-
-        @Option(names = {"--bucket"},
-                description = "桶名",
-                required = true)
-        String bucket;
-
-        @Option(names = "--delete",
-                description = "删除文件",
-                required = true)
-        List<String> deleteObjects;
-
+    @Command(name = "init", description = "初始化 oss 客户端")
+    void initOssClient(@Parameters String configId) {
+        oss.set(OssFactory.getInstance(OssConfigurationStore.getOne(configId)));
+        System.out.println("init oss client success, client info => " +
+                        configId + " " +
+                        oss.get().getCurrentConfiguration().getType() + " " +
+                        oss.get().getCurrentConfiguration().getEndPoint());
     }
 
     public static void main(String[] args) {
-        new CommandLine(new OssCli())
-                .execute("-h");
+        CommandLine commandLine =
+            new CommandLine(new OssCli());
+        commandLine.execute("-h");
+        commandLine.execute("init", "mac_15");
+        commandLine.execute("ls");
+        commandLine.execute("ls", "-b", "local");
+        commandLine.execute("ls", "conf");
+        commandLine.execute("put", "bucket", "test1", "test2");
+        commandLine.execute("delete", "bucket", "test1", "test2");
+        commandLine.execute("put", "object", "/Users/liuanglin/data/oss/upload/oss_test.jpeg", "-b", "local");
+        commandLine.execute("delete", "object", "oss_test.jpeg", "-b", "local");
     }
-
 }
 
-@Command(name = "conf", aliases = {"-c"})
-class ConfigCommands implements Runnable {
+@Command(name = "ls",
+        description = "展示资源列表")
+class ListCommand implements Runnable {
 
-    @ArgGroup
-    ExclusiveConfigOptions options;
+    @Option(names = "-b")
+    String bucket;
 
-    static class ExclusiveConfigOptions {
-        @Option(names = {"-a", "--all"},
-                description = "列出所有 oss 配置信息")
-        boolean listAll;
+    @Option(names = "--prefix", defaultValue = "")
+    String prefix;
 
-        @Option(names = {"--current"},
-                description = "显示当前配置信息")
-        boolean current;
-    }
+    @Option(names = "conf")
+    boolean conf;
 
     @Override
     public void run() {
-        if (options.listAll)
+        if (conf)
             System.out.println(OssConfigurationStore.getAllAsString());
-        if (options.current)
-            System.out.println(oss.get().getCurrentConfiguration());
-    }
-
-}
-
-@Command(name = "bucket", aliases = {"-b"})
-class BucketCommands implements Runnable {
-
-    @ArgGroup
-    ExclusiveBucketOptions options;
-
-    static class ExclusiveBucketOptions {
-        @Option(names = {"-a", "--all"},
-                description = "获取所有的 bucket 信息")
-        boolean all;
-
-        @Option(names = {"-c", "--create"},
-                description = "创建 bucket")
-        String createBucketName;
-
-        @Option(names = {"-d", "--delete"},
-                description = "删除 bucket")
-        String deleteBucketName;
-    }
-
-
-
-    @Override
-    public void run() {
-        if (options.all)
+        else if (hasValue(bucket)) {
+            ListAllObjectRequest request = new ListAllObjectRequest(bucket, prefix);
+            System.out.println(oss.get().listAllObjects(request));
+        }
+        else
             System.out.println(oss.get().listBuckets());
-        if (!StringUtils.isNullOrEmpty(options.createBucketName))
-            oss.get().createBucket(options.createBucketName);
-        if (!StringUtils.isNullOrEmpty(options.deleteBucketName))
-            oss.get().deleteBucket(options.deleteBucketName);
     }
 }
 
-@Command(name = "put")
-class PutCommands implements Runnable {
+@Command(name = "delete", description = "删除操作")
+class DeleteCommands implements Runnable {
 
-    @ArgGroup
-    PutBucketCommand putBucketCommand;
+    @Option(names = {"bucket"})
+    boolean bucket;
 
-    @ArgGroup
-    PutObjectCommand putObjectCommand;
+    @Parameters(arity = "1..")
+    String[] params;
 
-    static class PutBucketCommand {
-        @Option(names = {"bucket"},
-                description = "创建桶",
-                required = true)
-        boolean bucket;
+    @CommandLine.ArgGroup(exclusive = false)
+    ObjectArgs objectArgs;
 
-        @Parameters(description = "要创建的桶，可以为多个", arity = "1..")
-        List<String> buckets;
-    }
-
-    static class PutObjectCommand {
-        @Option(names = {"object"}, description = "上传对象", required = true)
+    static class ObjectArgs {
+        @Option(names = {"object"})
         boolean object;
 
-        @Option(names = {"-b", "--bucket"})
-        String bucket;
-
-        @Parameters(description = "要上传的文件，可以为多个", arity = "1..")
-        List<File> objects;
+        @Option(names = {"-b"})
+        String targetBucket;
     }
 
     @Override
     public void run() {
-        if (putBucketCommand.bucket)
-            putBucketCommand.buckets.forEach(b -> oss.get().createBucket(b));
-        if (putObjectCommand.object)
-            putObjectCommand.objects.forEach(o -> oss.get().putObject(putObjectCommand.bucket, o));
+        if (Objects.nonNull(objectArgs) &&
+                objectArgs.object &&
+                hasValue(objectArgs.targetBucket))
+            Arrays.stream(params)
+                    .map(o -> oss.get().deleteObject(objectArgs.targetBucket, o))
+                    .forEach(System.out::println);
+        if (bucket)
+            Arrays.stream(params)
+                    .map(o -> oss.get().deleteBucket(o))
+                    .map(r -> r.getBucket().concat(" has deleted."))
+                    .forEach(System.out::println);
+    }
+}
+
+@Command(name = "put", description = "put相关操作")
+class PutCommand implements Runnable {
+
+    @CommandLine.ArgGroup(exclusive = false)
+    BucketArgs bucketArgs;
+
+    static class BucketArgs {
+        @Option(names = {"bucket"}) boolean bucket;
+        @Parameters(arity = "1..") String[] buckets;
+    }
+
+    @CommandLine.ArgGroup(exclusive = false)
+    ObjectArgs objectArgs;
+
+    static class ObjectArgs {
+        @Option(names = {"object"}) boolean object;
+        @Option(names = {"-b"}) String targetBucket;
+        @Parameters(arity = "1..") File[] objects;
+    }
+
+    @Override
+    public void run() {
+        if (Objects.nonNull(bucketArgs) &&
+                bucketArgs.bucket && Objects.nonNull(bucketArgs.buckets))
+            Arrays.stream(bucketArgs.buckets)
+                    .map(b -> oss.get().createBucket(b).getBucket().getName().concat(" created."))
+                    .forEach(System.out::println);
+        else if (Objects.nonNull(objectArgs) &&
+                objectArgs.object &&
+                Objects.nonNull(objectArgs.objects) &&
+                StringUtils.hasValue(objectArgs.targetBucket))
+            Arrays.stream(objectArgs.objects)
+                    .map(o -> oss.get().putObject(objectArgs.targetBucket, o))
+                    .map(r -> r.getKey() + " has put to " + objectArgs.targetBucket)
+                    .forEach(System.out::println);
+    }
+}
+
+@Command(name = "get", description = "get 相关操作")
+class GetCommand implements Runnable {
+
+    @Option(names = {"-b"}, required = true)
+    String bucket;
+
+    @Option(names = {"--local-path"}, required = true)
+    String localPath;
+
+    @Option(names = {"--rule"}, defaultValue = "")
+    String rule;
+
+    @Parameters(arity = "1..")
+    String[] objects;
+
+    @Override
+    public void run() {
+        Arrays.stream(objects)
+                .map(key -> oss.get().downloadObject(bucket, key, localPath, rule))
+                .forEach(System.out::println);
+    }
+}
+
+@Command(name = "batch", description = "批量操作")
+class BatchCommands implements Runnable {
+
+    @Option(names = {"-b"}, required = true)
+    String bucket;
+
+    @Option(names = {"--local-path"})
+    String localPath;
+
+    @Option(names = "--prefix", defaultValue = "")
+    String prefix;
+
+    @Option(names = {"--rule"}, defaultValue = "")
+    String rule;
+
+    @CommandLine.ArgGroup
+    Operation operation;
+
+    static class Operation {
+        @Option(names = {"get"}, required = true)
+        boolean get;
+
+        @Option(names = {"put"}, required = true)
+        boolean put;
+
+        @Option(names = {"delete"}, required = true)
+        boolean delete;
+    }
+
+    @Override
+    public void run() {
+        if (operation.get && hasValue(localPath))
+            System.out.println(oss.get().batchDownload(bucket, localPath, prefix, rule));
+        else if (operation.delete)
+            System.out.println(oss.get().batchDelete(bucket, prefix));
+        else if (operation.put && hasValue(localPath))
+            System.out.println(oss.get().batchUpload(bucket, localPath));
     }
 }

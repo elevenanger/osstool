@@ -221,14 +221,22 @@ public abstract class AbstractOss<T> implements Oss, Client<T> {
         return batchProcess(response,
                 listAllObjects(request.getBucket()).getObjectSummaryList(),
                 ObjectSummary::getKey,
-                objectSummary -> () -> downloadObject(objectSummary.getBucket(),
+                objectSummary -> () ->
+                    downloadObject(
+                        objectSummary.getBucket(),
                         objectSummary.getKey(),
-                        request.getDownloadPath()));
+                        request.getDownloadPath(),
+                        request.getRule()));
     }
 
     @Override
     public BatchOperationResponse batchDownload(String bucket, String path, String prefix) {
         return batchDownload(new BatchDownloadRequest(bucket, prefix, path));
+    }
+
+    @Override
+    public BatchOperationResponse batchDownload(String bucket, String path, String prefix, String rule) {
+        return batchDownload(new BatchDownloadRequest(bucket, prefix, path, rule));
     }
 
     @Override

@@ -104,6 +104,8 @@ public interface Oss {
 
     BatchOperationResponse batchDownload(String bucket, String path, String prefix);
 
+    BatchOperationResponse batchDownload(String bucket, String path, String prefix, String rule);
+
     BatchOperationResponse batchDelete(BatchDeleteRequest request);
     BatchOperationResponse batchDelete(String bucket, String prefix);
 

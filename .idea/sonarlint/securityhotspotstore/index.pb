@@ -5,8 +5,6 @@ Sossservice/src/main/java/cn/anger/ossservice/services/model/BatchDeleteRequest.
 ]ossservice/src/main/java/cn/anger/ossservice/services/model/transform/RequestTransformer.java,f/3/f374cb88fd4ec722b14cc461134187a44eefb019
 Ž
 ^ossservice/src/main/java/cn/anger/ossservice/services/model/transform/ResponseTransformer.java,6/6/66a6fb29e8169470e668d55a9abbd07aef24fe44
-w
-Gossservice/src/main/java/cn/anger/ossservice/services/model/Bucket.java,2/6/263c2ea29875e9ac4a15d756a421a854e57d8962
 |
 Lossservice/src/main/java/cn/anger/ossservice/services/model/CliResponse.java,f/6/f63918cb91b6e1aa59c23e4bc04bae9f093d10e4
 {
