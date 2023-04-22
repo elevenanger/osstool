@@ -37,30 +37,17 @@ import static com.amazonaws.util.StringUtils.*;
         })
 public class OssCli {
 
-    static final AtomicReference<Oss> oss = new AtomicReference<>();
+    public static final AtomicReference<Oss> oss = new AtomicReference<>(OssFactory.getInstance());
 
     @Command(name = "init", description = "初始化 oss 客户端")
     void initOssClient(@Parameters String configId) {
         oss.set(OssFactory.getInstance(OssConfigurationStore.getOne(configId)));
-        System.out.println("init oss client success, client info => " +
+        System.out.println("oss 客户端初始化成功 => " +
                         configId + " " +
                         oss.get().getCurrentConfiguration().getType() + " " +
                         oss.get().getCurrentConfiguration().getEndPoint());
     }
 
-    public static void main(String[] args) {
-        CommandLine commandLine =
-            new CommandLine(new OssCli());
-        commandLine.execute("-h");
-        commandLine.execute("init", "mac_15");
-        commandLine.execute("ls");
-        commandLine.execute("ls", "-b", "local");
-        commandLine.execute("ls", "conf");
-        commandLine.execute("put", "bucket", "test1", "test2");
-        commandLine.execute("delete", "bucket", "test1", "test2");
-        commandLine.execute("put", "object", "/Users/liuanglin/data/oss/upload/oss_test.jpeg", "-b", "local");
-        commandLine.execute("delete", "object", "oss_test.jpeg", "-b", "local");
-    }
 }
 
 @Command(name = "ls",
@@ -120,7 +107,7 @@ class DeleteCommands implements Runnable {
         if (bucket)
             Arrays.stream(params)
                     .map(o -> oss.get().deleteBucket(o))
-                    .map(r -> r.getBucket().concat(" has deleted."))
+                    .map(r -> r.getBucket().concat(" 创建成功"))
                     .forEach(System.out::println);
     }
 }
@@ -150,7 +137,7 @@ class PutCommand implements Runnable {
         if (Objects.nonNull(bucketArgs) &&
                 bucketArgs.bucket && Objects.nonNull(bucketArgs.buckets))
             Arrays.stream(bucketArgs.buckets)
-                    .map(b -> oss.get().createBucket(b).getBucket().getName().concat(" created."))
+                    .map(b -> oss.get().createBucket(b).getBucket().getName().concat(" 创建成功"))
                     .forEach(System.out::println);
         else if (Objects.nonNull(objectArgs) &&
                 objectArgs.object &&
@@ -158,7 +145,7 @@ class PutCommand implements Runnable {
                 StringUtils.hasValue(objectArgs.targetBucket))
             Arrays.stream(objectArgs.objects)
                     .map(o -> oss.get().putObject(objectArgs.targetBucket, o))
-                    .map(r -> r.getKey() + " has put to " + objectArgs.targetBucket)
+                    .map(r -> r.getKey() + " put 至 " + objectArgs.targetBucket)
                     .forEach(System.out::println);
     }
 }

@@ -46,7 +46,7 @@ public class ResponseTransformers {
                             b.setName(bucket.getName());
                             b.setCreateDate(bucket.getCreationDate());
                             return b;})
-                        .toList();
+                        .collect(Collectors.toList());
                 return new ListBucketsResponse(bs);
             };
 
@@ -86,7 +86,7 @@ public class ResponseTransformers {
                         summary.setSize(objectSummary.getSize());
                         summary.setLastModified(objectSummary.getLastModified());
                         return summary;
-                    }).toList();
+                    }).collect(Collectors.toList());
 
             response.setObjectSummaries(objectSummaries);
             response.setStartAfter(listObjectsV2Result.getStartAfter());
@@ -115,7 +115,7 @@ public class ResponseTransformers {
                                 b.setName(bucket.getName());
                                 b.setCreateDate(bucket.getCreationDate());
                                 return b;})
-                            .toList();
+                            .collect(Collectors.toList());
             return new ListBucketsResponse(bs);
         };
 
@@ -144,7 +144,7 @@ public class ResponseTransformers {
                         summary.setSize(objectSummary.getSize());
                         summary.setLastModified(objectSummary.getLastModified());
                         return summary;
-                    }).toList();
+                    }).collect(Collectors.toList());
 
             response.setObjectSummaries(objectSummaries);
             response.setStartAfter(objectListing.getNextMarker());

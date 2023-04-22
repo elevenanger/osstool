@@ -196,7 +196,7 @@ public abstract class AbstractOss<T> implements Oss, Client<T> {
                     .map(file ->
                             new PutObjectRequest(request.getBucket(),
                                     file.getPath().replace(request.getLocalPath(), ""), file))
-                    .toList();
+                    .collect(Collectors.toList());
         } catch (IOException e) {
             throw new OssBaseException(e);
         }
