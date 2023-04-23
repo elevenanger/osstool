@@ -59,6 +59,7 @@ public interface Oss {
     <O> GetObjectResponse<O> getObject(GetObjectRequest request);
 
     <O> GetObjectResponse<O> getObject(String bucket, String key, String rule);
+    <O> GetObjectResponse<O> getObject(String bucket, String key);
 
     /**
      * 下载对象到本地

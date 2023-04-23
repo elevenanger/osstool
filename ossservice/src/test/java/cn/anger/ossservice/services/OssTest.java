@@ -3,7 +3,6 @@ package cn.anger.ossservice.services;
 import cn.anger.ossservice.services.model.CliResponse;
 import cn.anger.ossservice.services.model.ListObjectsRequest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestTemplate;
 
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicReference;
@@ -18,17 +17,17 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 class OssTest {
 
-    public static final String BUCKET_NAME = "test";
+    static final String BUCKET_NAME = "local";
 
-    public static final String FILE_NAME = "oss_test.jpeg";
+    static final String TEST_BUCKET = "test";
 
-    public static final String OSS_DOWNLOAD_PATH = System.getenv("OSS_DOWNLOAD_PATH");
+    static final String FILE_NAME = "test.file";
 
-    public static final String OSS_UPLOAD_PATH = System.getenv("OSS_UPLOAD_PATH");
+    static final String OSS_DOWNLOAD_PATH = System.getenv("OSS_DOWNLOAD_PATH");
 
-    Oss oss;
+    static final String OSS_UPLOAD_PATH = System.getenv("OSS_UPLOAD_PATH");
 
-    String bucket;
+    static Oss oss = OssFactory.getInstance();
 
     void templateFunction(Supplier<CliResponse> responseSupplier) {
         AtomicReference<CliResponse> response = new AtomicReference<>();
@@ -36,81 +35,66 @@ class OssTest {
         System.out.println(response);
     }
 
-    @TestTemplate
-    void baseObjectTests() {}
-
     @Test
     void listBuckets() {
         templateFunction(oss::listBuckets);
     }
 
     @Test
-    void createBucket() {
-        templateFunction(() -> oss.createBucket(BUCKET_NAME));
+    void createAndDeleteBucket() {
+        templateFunction(() -> oss.createBucket(TEST_BUCKET));
+        templateFunction(() -> oss.deleteBucket(TEST_BUCKET));
     }
 
     @Test
-    void deleteBucket() {
-        templateFunction(() -> oss.deleteBucket(BUCKET_NAME));
-    }
-
-    @Test
-    void putObject() {
+    void putAndDownloadAndDeleteObject() {
         templateFunction(() -> oss.putObject(
-                bucket,
+                BUCKET_NAME,
                 Paths.get(OSS_UPLOAD_PATH, FILE_NAME).toFile()));
-    }
 
-    @Test
-    void downloadObject() {
-        templateFunction(() -> oss.downloadObject(
-                bucket,
-                FILE_NAME,
-                OSS_DOWNLOAD_PATH));
-    }
+        templateFunction(() ->
+                oss.downloadObject(
+                        BUCKET_NAME,
+                        FILE_NAME,
+                        OSS_DOWNLOAD_PATH));
 
-    @Test
-    void downloadObjectWithRule() {
         templateFunction(() -> oss.downloadObject(
-                bucket,
+                BUCKET_NAME,
                 FILE_NAME,
                 OSS_DOWNLOAD_PATH,
                 "imageMogr2/thumbnail/!50p"));
-    }
 
-    @Test
-    void deleteObject() {
-        templateFunction(() -> oss.deleteObject(bucket, FILE_NAME));
+        templateFunction(() -> oss.deleteObject(BUCKET_NAME, FILE_NAME));
     }
 
     @Test
     void listObjects() {
-        templateFunction(() -> oss.listObjects(new ListObjectsRequest(bucket, "")));
+        templateFunction(() -> oss.listObjects(new ListObjectsRequest(BUCKET_NAME, "")));
     }
 
     @Test
     void listAllObjects() {
-        templateFunction(() -> oss.listAllObjects(bucket));
+        templateFunction(() -> oss.listAllObjects(BUCKET_NAME));
     }
 
     @Test
     void listAllObjectsWithPrefix() {
-        templateFunction(() -> oss.listAllObjects(bucket, ""));
+        templateFunction(() -> oss.listAllObjects(BUCKET_NAME, ""));
     }
 
     @Test
     void batchUpload() {
-        templateFunction(() -> oss.batchUpload(bucket, OSS_UPLOAD_PATH));
+        templateFunction(() -> oss.batchUpload(BUCKET_NAME, OSS_UPLOAD_PATH));
     }
 
     @Test
     void batchDownload() {
-        templateFunction(() -> oss.batchDownload(bucket, OSS_DOWNLOAD_PATH, ""));
+        templateFunction(() -> oss.batchDownload(BUCKET_NAME, OSS_DOWNLOAD_PATH, ""));
     }
 
     @Test
     void batchDelete() {
-        templateFunction(() -> oss.batchDelete(bucket, ""));
+        templateFunction(() -> oss.batchDelete(BUCKET_NAME, ""));
     }
 
     @Test

@@ -96,6 +96,11 @@ public abstract class AbstractOss<T> implements Oss, Client<T> {
     }
 
     @Override
+    public <O> GetObjectResponse<O> getObject(String bucket, String key) {
+        return getObject(new GetObjectRequest(bucket, key));
+    }
+
+    @Override
     public DownloadObjectResponse downloadObject(String bucket, String key, String path) {
         return downloadObject(new DownloadObjectRequest(bucket, key, path));
     }
@@ -109,7 +114,7 @@ public abstract class AbstractOss<T> implements Oss, Client<T> {
     public DownloadObjectResponse downloadObject(DownloadObjectRequest request) {
 
         GetObjectResponse<?> result = Objects.isNull(request.getRule()) ?
-                                        getObject(new GetObjectRequest(request.getBucket(), request.getKey())) :
+                                        getObject(request.getBucket(), request.getKey()) :
                                         getObject(request.getBucket(), request.getKey(), request.getRule());
 
         File localFile = Paths.get(request.getDownloadPath(), request.getKey().split("/")).toFile();
@@ -330,8 +335,8 @@ public abstract class AbstractOss<T> implements Oss, Client<T> {
                     .filter(method -> clientResponseType == null ||
                             clientResponseType.equals(Void.class) ||
                             method.getReturnType().equals(clientResponseType))
-                    .filter(method -> Arrays.stream(method.getParameterTypes())
-                                            .anyMatch(type -> type == request.getClass()))
+                    .filter(method -> method.getParameterTypes().length == 1 &&
+                                        method.getParameterTypes()[0].equals(request.getClass()))
                     .findFirst()
                     .orElseThrow(() -> new OssBaseException("没有匹配请求类型的方法 : " + request.getClass()));
         try {

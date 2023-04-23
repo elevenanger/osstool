@@ -8,10 +8,7 @@ public class DownloadObjectRequest extends CliRequest {
     private String bucket;
     private String key;
     private String downloadPath;
-
     private String rule;
-
-    public DownloadObjectRequest() {}
 
     public DownloadObjectRequest(String bucket, String key, String downloadPath) {
         this.bucket = bucket;

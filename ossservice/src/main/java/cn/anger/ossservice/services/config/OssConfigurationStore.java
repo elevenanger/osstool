@@ -65,10 +65,10 @@ public class OssConfigurationStore {
 
     private static final class ConfigStorage {
         private static final String OSS_CONFIG = "oss-config.yml";
-        private static final String KEY = "fe6f915f273336a487548db7b364744c";
         private static final Yaml YAML = getYaml();
         private final Map<String, OssConfiguration> configurations = new HashMap<>();
         private String defaultConfiguration;
+        private String key;
 
         private static Yaml getYaml() {
             Yaml yaml = new Yaml(new Constructor(ConfigStorage.class, new LoaderOptions()));
@@ -129,14 +129,14 @@ public class OssConfigurationStore {
             return decryptConfiguration(getConfigurations().get(key));
         }
 
-        private OssConfiguration decryptConfiguration(final OssConfiguration originConfiguration) {
+        private OssConfiguration decryptConfiguration(OssConfiguration originConfiguration) {
             OssConfiguration configuration = new OssConfiguration();
             String accessKey;
             String secreteKey;
 
             try {
-                accessKey = SM4Util.decrypt(KEY, originConfiguration.getAccessKey());
-                secreteKey = SM4Util.decrypt(KEY, originConfiguration.getSecreteKey());
+                accessKey = SM4Util.decrypt(key, originConfiguration.getAccessKey());
+                secreteKey = SM4Util.decrypt(key, originConfiguration.getSecreteKey());
             } catch (Exception e) {
                 accessKey = originConfiguration.getAccessKey();
                 secreteKey = originConfiguration.getSecreteKey();
