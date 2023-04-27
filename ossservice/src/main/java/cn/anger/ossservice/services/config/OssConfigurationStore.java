@@ -1,7 +1,6 @@
 package cn.anger.ossservice.services.config;
 
-import cn.anger.utils.sm.SM4Util;
-import org.yaml.snakeyaml.LoaderOptions;
+import cn.anger.utils.sm.SM4Util; import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.BeanAccess;
@@ -12,6 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,12 +23,13 @@ import java.util.stream.Collectors;
  * @author Anger
  * created on 2023/2/27
  * Oss 配置信息仓库
- * 分别从 {@link PresetConfiguration} 和配置文件中读取配置信息
  */
 public class OssConfigurationStore {
+
     private OssConfigurationStore() {
         throw new OssBaseException("不正确的实例化方式");
     }
+
     private static final ConfigStorage storage = new ConfigStorage().initialize();
 
     private static final AtomicInteger index = new AtomicInteger(0);
@@ -77,25 +78,29 @@ public class OssConfigurationStore {
         }
 
         public ConfigStorage initialize() {
-            loadFromPreset();
             loadFromSystem();
+            loadFromCurrentPath();
             return this;
         }
 
-        private void loadFromPreset() {
-            configurations.putAll(PresetConfiguration.presetConfigurations());
+        private void loadFromCurrentPath() {
+            loadConfig(Paths.get("./", OSS_CONFIG));
         }
 
         private void loadFromSystem() {
             loadConfig(getClass().getClassLoader().getResourceAsStream(OSS_CONFIG));
         }
 
-        public void loadConfig(String path) {
-            try (InputStream stream = Files.newInputStream(Paths.get(path))){
-                loadConfig(stream);
-            } catch (IOException e) {
-                throw new OssBaseException(e);
+        public void loadConfig(Path path) {
+            try (InputStream in = Files.newInputStream(path)){
+                loadConfig(in);
+            } catch (IOException ignored) {
+                // 如果当前路径没有配置文件则忽略
             }
+        }
+
+        public void loadConfig(String path) {
+            loadConfig(Paths.get(path));
         }
 
         public void loadConfig(InputStream stream) {
@@ -103,6 +108,8 @@ public class OssConfigurationStore {
             this.configurations.putAll(configStorage.getConfigurations());
             if (configStorage.defaultConfiguration != null)
                 setDefaultConfiguration(configStorage.defaultConfiguration);
+            if (key != null)
+                setKey(configStorage.key);
         }
 
         public void dump(String path) {
@@ -152,6 +159,10 @@ public class OssConfigurationStore {
 
         public void setDefaultConfiguration(String defaultConfiguration) {
             this.defaultConfiguration = defaultConfiguration;
+        }
+
+        public void setKey(String key) {
+            this.key = key;
         }
 
         @Override

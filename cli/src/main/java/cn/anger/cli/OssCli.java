@@ -13,6 +13,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import static cn.anger.cli.OssCli.oss;
 import static com.amazonaws.util.StringUtils.hasValue;
@@ -36,16 +37,25 @@ import static com.amazonaws.util.StringUtils.hasValue;
         })
 public class OssCli {
 
-    public static final AtomicReference<Oss> oss = new AtomicReference<>(OssFactory.getInstance());
+    static final AtomicReference<Oss> oss = new AtomicReference<>();
+
+    static final Consumer<Oss> SHOW_OSS_INFO = o ->
+            System.out.println(
+                "oss 客户端初始化成功 => " +
+                    o.getCurrentConfiguration().getType() + " " +
+                    o.getCurrentConfiguration().getEndPoint());
+
+    static {
+        if (Objects.nonNull(OssFactory.getInstance())) {
+            oss.set(OssFactory.getInstance());
+            SHOW_OSS_INFO.accept(oss.get());
+        }
+    }
 
     @Command(name = "init", description = "通过配置初始化 oss 客户端")
     void initOssClient(@Parameters String configId) {
         oss.set(OssFactory.getInstance(OssConfigurationStore.getOne(configId)));
-        System.out.println(
-                "oss 客户端初始化成功 => " +
-                        configId + " " +
-                        oss.get().getCurrentConfiguration().getType() + " " +
-                        oss.get().getCurrentConfiguration().getEndPoint());
+        SHOW_OSS_INFO.accept(oss.get());
     }
 
 }
@@ -71,9 +81,8 @@ class ListCommand implements Runnable {
     public void run() {
         if (conf)
             System.out.println(OssConfigurationStore.getAllAsString());
-        else if (hasValue(bucket)) {
+        else if (hasValue(bucket))
             System.out.println(oss.get().listAllObjects(bucket, prefix));
-        }
         else
             System.out.println(oss.get().listBuckets());
     }

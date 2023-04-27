@@ -23,7 +23,6 @@ public interface Oss {
      * @param request {@link ListBucketsRequest}
      * @return {@link ListBucketsResponse}
      */
-
     ListBucketsResponse listBuckets(ListBucketsRequest request);
 
     ListBucketsResponse listBuckets();
@@ -59,6 +58,7 @@ public interface Oss {
     <O> GetObjectResponse<O> getObject(GetObjectRequest request);
 
     <O> GetObjectResponse<O> getObject(String bucket, String key, String rule);
+
     <O> GetObjectResponse<O> getObject(String bucket, String key);
 
     /**
@@ -76,6 +76,7 @@ public interface Oss {
      * @return 下载结果
      */
     DownloadObjectResponse downloadObject(String bucket, String key, String path);
+
     DownloadObjectResponse downloadObject(String bucket, String key, String path, String rule);
 
     /**
@@ -108,6 +109,7 @@ public interface Oss {
     BatchOperationResponse batchDownload(String bucket, String path, String prefix, String rule);
 
     BatchOperationResponse batchDelete(BatchDeleteRequest request);
+
     BatchOperationResponse batchDelete(String bucket, String prefix);
 
     OssConfiguration getCurrentConfiguration();

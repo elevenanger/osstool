@@ -1,0 +1,9 @@
+configurations:
+  conf: {
+    accessKey: accesskey,
+    endPoint: endpoint,
+    secreteKey: secretekey,
+    type: AWS
+  }
+defaultConfiguration: conf
+key: key
