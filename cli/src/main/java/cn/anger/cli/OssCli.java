@@ -185,6 +185,7 @@ class GetCommand implements Runnable {
 
     @Option(names = {"--local-path"},
             description = "本地下载路径",
+            defaultValue = "./",
             required = true)
     String localPath;
 
@@ -208,25 +209,6 @@ class GetCommand implements Runnable {
 @Command(name = "batch", description = "批量操作")
 class BatchCommands implements Runnable {
 
-    @Option(names = {"-b"},
-            description = "桶名",
-            required = true)
-    String bucket;
-
-    @Option(names = {"--local-path"},
-            description = "本地路径，get 操作将对象批量下载到此路径；put 操作将此路径的文件批量上传到对应桶中")
-    String localPath;
-
-    @Option(names = "--prefix",
-            description = "对象前缀",
-            defaultValue = "")
-    String prefix;
-
-    @Option(names = {"--rule"},
-            description = "规则",
-            defaultValue = "")
-    String rule;
-
     @CommandLine.ArgGroup
     Operation operation;
 
@@ -243,6 +225,26 @@ class BatchCommands implements Runnable {
                 required = true)
         boolean delete;
     }
+
+    @Option(names = {"-b"},
+            description = "桶名",
+            required = true)
+    String bucket;
+
+    @Option(names = {"--local-path"},
+            defaultValue = "./",
+            description = "本地路径，get 操作将对象批量下载到此路径；put 操作将此路径的文件批量上传到对应桶中")
+    String localPath;
+
+    @Option(names = "--prefix",
+            description = "对象前缀",
+            defaultValue = "")
+    String prefix;
+
+    @Option(names = {"--rule"},
+            description = "规则",
+            defaultValue = "")
+    String rule;
 
     @Override
     public void run() {

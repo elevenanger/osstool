@@ -7,6 +7,7 @@ import org.yaml.snakeyaml.introspector.BeanAccess;
 import cn.anger.ossservice.exception.OssBaseException;
 import cn.anger.ossservice.services.model.OssConfiguration;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -84,7 +85,10 @@ public class OssConfigurationStore {
         }
 
         private void loadFromCurrentPath() {
-            loadConfig(Paths.get("./", OSS_CONFIG));
+            String jarPath =
+                this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+            String parent = new File(jarPath).getParent();
+            loadConfig(Paths.get(parent, OSS_CONFIG));
         }
 
         private void loadFromSystem() {
